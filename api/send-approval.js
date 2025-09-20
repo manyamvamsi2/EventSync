@@ -57,15 +57,15 @@ export default async function handler(req, res) {
     host: 'smtp-relay.brevo.com',
     port: 587,
     auth: {
-      user: process.env.BREVO_USER,
-      pass: process.env.BREVO_PASS,
+      user: 'eventsync7@gmail.com',
+      pass: '3NWO29BxThmcJKkE',
     },
   });
 
   const isRejected = rejected === true;
 
   const mailOptions = {
-    from: `"EventSync" <eventsync@gmail.com>`,
+    from: `"EventSync" <eventsync7@gmail.com>`,
     to: email,
     subject: isRejected ? 'Your EventSync Account Request' : 'Welcome to EventSync! Your Account is Approved',
     html: isRejected ? createRejectionHtml(name) : createApprovalHtml(name),
