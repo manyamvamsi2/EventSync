@@ -22,7 +22,7 @@ const createHtmlBody = (name, eventName, reason, clubDetails) => `
     ` : ''}
   </div>
   <div style="background-color: #f7f7f7; color: #777; padding: 15px; text-align: center; font-size: 12px;">
-    <p style="margin: 0;">LiveCampus Event Management</p>
+    <p style="margin: 0;">EventSync</p>
   </div>
 </div>
 `;
@@ -43,8 +43,8 @@ export default async function handler(req, res) {
     host: 'smtp-relay.brevo.com',
     port: 587,
     auth: {
-      user: process.env.BREVO_USER,
-      pass: process.env.BREVO_PASS,
+      user: 'eventsync7@gmail.com',
+      pass: '3NWO29BxThmcJKkE',
     },
   });
 
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     : 'Please check your transaction details and try again.';
 
   const mailOptions = {
-    from: '"LiveCampus" <livecampuss@gmail.com>',
+    from: '"EventSync" <eventsync7@gmail.com>',
     to: email,
     subject: `❗ Payment Rejected for ${eventName}`,
     html: createHtmlBody(name, eventName, reasonText, clubDetails),
