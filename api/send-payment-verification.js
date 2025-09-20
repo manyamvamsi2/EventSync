@@ -1,16 +1,28 @@
 import nodemailer from 'nodemailer';
 
-const createHtmlBody = (name, eventName, eventId) => `
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
-  <div style="background-color: #5cb85c; color: white; padding: 20px; text-align: center;"><h1>Payment Verified!</h1></div>
-  <div style="padding: 20px;">
-    <p>Hello ${name},</p>
-    <p>Your payment for "<b>${eventName}</b>" has been verified. You can now access your QR code for check-in.</p>
-    <a href="https://eventsync.vercel.app/events/${eventId}" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Get Your QR Code</a>
-  </div>
-</div>`;
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://event-sync-cwd7sp34i-manyamvamsi2s-projects.vercel.app'
+];
+
+// createHtmlBody function remains the same...
+const createHtmlBody = (name, eventName, eventId) => `<div>...</div>`;
 
 export default async function handler(req, res) {
+  // Dynamic CORS Handling
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
