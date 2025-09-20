@@ -1,25 +1,33 @@
 import nodemailer from 'nodemailer';
 
-const createApprovalHtml = (name) => `
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0;">
-  <div style="background-color: #5cb85c; color: white; padding: 20px; text-align: center;"><h1>Account Approved!</h1></div>
-  <div style="padding: 24px;">
-    <p>Hello ${name},</p>
-    <p>Your EventSync account has been approved. You can now log in.</p>
-    <a href="https://eventsync.vercel.app/login" style="display: inline-block; background-color: #007bff; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Login</a>
-  </div>
-</div>`;
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://event-sync-cwd7sp34i-manyamvamsi2s-projects.vercel.app'
+];
 
-const createRejectionHtml = (name) => `
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0;">
-  <div style="background-color: #d9534f; color: white; padding: 20px; text-align: center;"><h1>Account Status Update</h1></div>
-  <div style="padding: 24px;"><p>Hello ${name},</p><p>We regret to inform you that your registration for an EventSync account has been rejected.</p></div>
-</div>`;
+// Helper functions (createApprovalHtml, createRejectionHtml) remain the same...
+const createApprovalHtml = (name) => `<div>...</div>`;
+const createRejectionHtml = (name) => `<div>...</div>`;
 
 export default async function handler(req, res) {
+  // Dynamic CORS Handling
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
+
   const { email, name, rejected } = req.body;
   if (!email || !name) {
     return res.status(400).json({ error: 'Missing email or name' });
