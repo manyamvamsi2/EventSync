@@ -10,27 +10,19 @@ const formatDateTime = (isoString) => {
 };
 
 const createHtmlBody = (event) => `
-<div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 20px auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
   ${event.image ? `<img src="${event.image}" alt="${event.title}" style="width: 100%; height: auto; max-height: 250px; object-fit: cover;">` : ''}
   <div style="padding: 24px;">
-    <h1 style="font-size: 28px; margin: 0 0 10px 0; color: #1a202c;">You're Invited!</h1>
-    <p style="font-size: 16px; color: #555;">A new event has just been announced on EventSync:</p>
+    <h1 style="font-size: 28px; color: #1a202c;">You're Invited!</h1>
+    <p style="color: #555;">A new event has been announced on EventSync:</p>
     <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #4f46e5;">
-      <h2 style="font-size: 22px; margin: 0 0 15px 0; color: #4f46e5;">${event.title}</h2>
-      <p style="margin: 0 0 10px 0; font-size: 15px;">${event.description}</p>
-      <p style="margin: 5px 0; font-size: 14px;"><strong>🗓️ Date & Time:</strong> ${formatDateTime(event.startDate)}</p>
-      <p style="margin: 5px 0; font-size: 14px;"><strong>📍 Location:</strong> ${event.location}</p>
-      <p style="margin: 5px 0; font-size: 14px;"><strong>Organized by:</strong> ${event.organizerName}</p>
+      <h2 style="font-size: 22px; color: #4f46e5;">${event.title}</h2>
+      <p><strong>Date & Time:</strong> ${formatDateTime(event.startDate)}</p>
+      <p><strong>Location:</strong> ${event.location}</p>
     </div>
-    <div style="text-align: center; margin: 30px 0;">
-      <a href="https://eventsync.vercel.app/events/${event.id}" style="background-color: #4f46e5; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
-        View Event & Register
-      </a>
-    </div>
-    <p>Don't miss out on this opportunity. We hope to see you there!</p>
-  </div>
-  <div style="background-color: #f7f7f7; color: #777; padding: 15px; text-align: center; font-size: 12px;">
-    <p style="margin: 0;">EventSync | Your Campus Connection</p>
+    <a href="https://eventsync.vercel.app/events/${event.id}" style="background-color: #4f46e5; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+      View Event & Register
+    </a>
   </div>
 </div>
 `;
@@ -41,9 +33,8 @@ export default async function handler(req, res) {
   }
 
   const { event, students } = req.body;
-
   if (!event || !students || !Array.isArray(students) || students.length === 0) {
-    return res.status(400).json({ error: 'Missing event or students data' });
+    return res.status(400).json({ error: 'Missing required data' });
   }
 
   const transporter = nodemailer.createTransport({
@@ -51,13 +42,11 @@ export default async function handler(req, res) {
     auth: { user: 'eventsync7@gmail.com', pass: '3NWO29BxThmcJKkE' },
   });
 
-  const studentEmails = students.map(student => student.email);
   const mailOptions = {
     from: '"EventSync" <eventsync7@gmail.com>',
-    bcc: studentEmails,
-    subject: `📢 New Event Announcement: ${event.title}`,
+    bcc: students.map(s => s.email),
+    subject: `📢 New Event: ${event.title}`,
     html: createHtmlBody(event),
-    text: `A new event has been published on EventSync!\n\nEvent: ${event.title}\nDate: ${formatDateTime(event.startDate)}\nLocation: ${event.location}\n\nFor more information, visit: https://eventsync.vercel.app/events/${event.id}`,
   };
 
   try {
@@ -65,6 +54,6 @@ export default async function handler(req, res) {
     res.status(200).json({ success: true });
   } catch (err) {
     console.error('Error sending email:', err);
-    res.status(500).json({ error: 'Error sending email', details: err.message });
+    res.status(500).json({ error: 'Error sending email' });
   }
 }
