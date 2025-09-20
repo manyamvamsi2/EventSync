@@ -38,13 +38,13 @@ export default async function handler(req, res) {
     host: 'smtp-relay.brevo.com',
     port: 587,
     auth: {
-      user: process.env.BREVO_USER,
-      pass: process.env.BREVO_PASS,
+      user: 'eventsync7@gmail.com',
+      pass: '3NWO29BxThmcJKkE',
     },
   });
 
   const mailOptions = {
-    from: '"EventSync" <eventsync@gmail.com>',
+    from: '"EventSync" <eventsync7@gmail.com>',
     to: email,
     subject: `✅ Payment Verified for ${eventName}`,
     html: createHtmlBody(name, eventName, eventId),
