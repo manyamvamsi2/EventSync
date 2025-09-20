@@ -1,33 +1,37 @@
 import nodemailer from 'nodemailer';
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://event-sync-cwd7sp34i-manyamvamsi2s-projects.vercel.app'
+];
+
+// Helper functions (formatDateTime, createHtmlBody) remain the same...
 const formatDateTime = (isoString) => {
   const date = new Date(isoString);
-  const options = {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  };
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
   return date.toLocaleDateString('en-US', options);
 };
-
 const createHtmlBody = (event) => `
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-  ${event.image ? `<img src="${event.image}" alt="${event.title}" style="width: 100%; height: auto; max-height: 250px; object-fit: cover;">` : ''}
-  <div style="padding: 24px;">
-    <h1 style="font-size: 28px; color: #1a202c;">You're Invited!</h1>
-    <p style="color: #555;">A new event has been announced on EventSync:</p>
-    <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #4f46e5;">
-      <h2 style="font-size: 22px; color: #4f46e5;">${event.title}</h2>
-      <p><strong>Date & Time:</strong> ${formatDateTime(event.startDate)}</p>
-      <p><strong>Location:</strong> ${event.location}</p>
-    </div>
-    <a href="https://eventsync.vercel.app/events/${event.id}" style="background-color: #4f46e5; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">
-      View Event & Register
-    </a>
-  </div>
-</div>
-`;
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
+  <div style="padding: 24px;"><h1>You're Invited!</h1><p>A new event has been announced: <strong>${event.title}</strong></p><p><strong>Date:</strong> ${formatDateTime(event.startDate)}</p><p><strong>Location:</strong> ${event.location}</p><a href="https://eventsync.vercel.app/events/${event.id}">View Event</a></div>
+</div>`;
+
 
 export default async function handler(req, res) {
+  // Dynamic CORS Handling
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
