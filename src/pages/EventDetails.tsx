@@ -232,6 +232,26 @@ const EventDetails: React.FC = () => {
         }
     };
 
+    const handleAddToCalendar = () => {
+        if (!event) return;
+
+        const formatDateForGoogle = (date: Date) => {
+            return date.toISOString().replace(/-|:|\.\d{3}/g, '');
+        };
+
+        const startDate = parseISO(event.startDate);
+        const endDate = parseISO(event.endDate);
+
+        const googleCalendarUrl = new URL('https://calendar.google.com/calendar/render');
+        googleCalendarUrl.searchParams.append('action', 'TEMPLATE');
+        googleCalendarUrl.searchParams.append('text', event.title);
+        googleCalendarUrl.searchParams.append('dates', `${formatDateForGoogle(startDate)}/${formatDateForGoogle(endDate)}`);
+        googleCalendarUrl.searchParams.append('details', event.description);
+        googleCalendarUrl.searchParams.append('location', event.location);
+
+        window.open(googleCalendarUrl.toString(), '_blank');
+    };
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -364,7 +384,12 @@ const EventDetails: React.FC = () => {
                                                 </div>
                                             )}
                                             {paymentStatus !== 'rejected' && (
-                                                 <Button variant="outline" fullWidth onClick={handleCancelRegistration} isLoading={isActionLoading}>Cancel Registration</Button>
+                                                <>
+                                                    <Button variant="outline" fullWidth onClick={handleAddToCalendar}>
+                                                        Add to Google Calendar
+                                                    </Button>
+                                                    <Button variant="outline" fullWidth onClick={handleCancelRegistration} isLoading={isActionLoading}>Cancel Registration</Button>
+                                                </>
                                             )}
                                         </>
                                     ) : !isRegistrationOpen && event.registrationStartDate ? (
