@@ -63,8 +63,8 @@ export default async function handler(req, res) {
     host: 'smtp-relay.brevo.com',
     port: 587,
     auth: {
-      user: process.env.BREVO_USER,
-      pass: process.env.BREVO_PASS,
+      user: 'eventsync7@gmail.com',
+      pass: '3NWO29BxThmcJKkE',
     },
   });
 
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
   const studentEmails = students.map(student => student.email);
 
   const mailOptions = {
-    from: '"EventSync" <eventsync@gmail.com>',
+    from: '"EventSync" <eventsync7@gmail.com>',
     bcc: studentEmails, // Changed from 'to' to 'bcc' for privacy
     subject: `📢 New Event Announcement: ${event.title}`,
     html: createHtmlBody(event),
